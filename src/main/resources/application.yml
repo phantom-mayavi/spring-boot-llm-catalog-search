@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: spring-boot-llm-catalog-search
+
+logging:
+  level:
+    com.ai.catalogsearch: INFO
+    org.springframework: INFO
+
+# Gemini Embeddings API Configuration
+gemini:
+  embeddings:
+    base-url: https://generativelanguage.googleapis.com
+    api-key: ${GEMINI_API_KEY:your-api-key-here}
+    model: text-embedding-004
+    batch-size: 100
