@@ -2,6 +2,7 @@ package com.ai.catalogsearch.config;
 
 import com.ai.catalogsearch.model.Product;
 import com.ai.catalogsearch.repository.ProductRepository;
+import com.ai.catalogsearch.service.EmbeddingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -12,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -22,10 +24,12 @@ import java.util.UUID;
 public class DataLoader implements CommandLineRunner {
 
     private final ProductRepository productRepository;
+    private final EmbeddingService embeddingService;
 
     @Override
     public void run(String... args) throws Exception {
         loadProductsFromCsv();
+        generateEmbeddings();
     }
 
     private void loadProductsFromCsv() {
@@ -59,6 +63,31 @@ public class DataLoader implements CommandLineRunner {
         } catch (Exception e) {
             log.error("Failed to load products from CSV", e);
             throw new RuntimeException("Failed to load product data", e);
+        }
+    }
+
+    private void generateEmbeddings() {
+        try {
+            log.info("Starting to generate embeddings for all products...");
+            
+            // Get all products from repository
+            List<Product> allProducts = productRepository.findAll();
+            
+            if (allProducts.isEmpty()) {
+                log.warn("No products found in repository, skipping embedding generation");
+                return;
+            }
+            
+            // Generate embeddings for all products
+            embeddingService.generateAndStoreEmbeddings(allProducts);
+            
+            log.info("Successfully generated embeddings for {} products", 
+                    embeddingService.getEmbeddingCount());
+            
+        } catch (Exception e) {
+            log.error("Failed to generate embeddings during startup", e);
+            // Don't throw exception to allow application to start even if embeddings fail
+            log.warn("Application will continue without embeddings");
         }
     }
 
