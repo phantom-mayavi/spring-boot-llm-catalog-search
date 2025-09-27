@@ -3,6 +3,7 @@ package com.ai.catalogsearch.controller;
 import com.ai.catalogsearch.model.Product;
 import com.ai.catalogsearch.repository.ProductRepository;
 import com.ai.catalogsearch.service.EmbeddingService;
+import com.ai.catalogsearch.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ public class ProductController {
 
     private final ProductRepository productRepository;
     private final EmbeddingService embeddingService;
+    private final SearchService searchService;
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getProducts(
@@ -93,6 +95,39 @@ public class ProductController {
         response.put("total", totalEmbeddings);
         
         log.info("Returning {} embeddings out of {} total", sampleEmbeddings.size(), totalEmbeddings);
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/search")
+    public ResponseEntity<Map<String, Object>> searchProducts(
+            @RequestParam("q") String query,
+            @RequestParam(value = "limit", defaultValue = "10") int limit) {
+        
+        log.info("Searching products with query: '{}', limit: {}", query, limit);
+        
+        if (query == null || query.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        // Validate limit parameter
+        if (limit <= 0) {
+            limit = 10;
+        }
+        if (limit > 50) {
+            limit = 50; // Cap at 50 to prevent excessive responses
+        }
+        
+        List<SearchService.ProductSearchResult> searchResults = searchService.searchProducts(query.trim(), limit);
+        
+        // Format response
+        Map<String, Object> response = new HashMap<>();
+        response.put("query", query.trim());
+        response.put("results", searchResults);
+        response.put("limit", limit);
+        response.put("returned", searchResults.size());
+        
+        log.info("Returning {} search results for query: '{}'", searchResults.size(), query);
         
         return ResponseEntity.ok(response);
     }
