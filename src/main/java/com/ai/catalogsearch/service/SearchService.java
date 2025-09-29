@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -61,12 +62,21 @@ public class SearchService {
         double[] queryEmbedding = embeddingsClient.embed(query);
         List<Product> allProducts = productRepository.findAll();
         
+        // Tokenize query for title keyword boost (case-insensitive, split on non-alphanumerics)
+        List<String> queryTokens = Arrays.stream(query.toLowerCase().split("[^a-zA-Z0-9]+"))
+                .filter(token -> !token.isEmpty())
+                .collect(Collectors.toList());
+        
         List<ProductSearchResult> vectorResults = allProducts.stream()
                 .map(product -> {
                     Optional<double[]> productEmbedding = embeddingService.getEmbedding(product.getId());
                     if (productEmbedding.isPresent()) {
                         double similarity = cosineSimilarity(queryEmbedding, productEmbedding.get());
-                        return new ProductSearchResult(product, similarity);
+                        
+                        // Apply ranking boosts
+                        double boostedScore = applyRankingBoosts(similarity, product, queryTokens, category);
+                        
+                        return new ProductSearchResult(product, boostedScore);
                     }
                     return null;
                 })
@@ -149,6 +159,49 @@ public class SearchService {
         }
         
         return dotProduct / (magnitudeA * magnitudeB);
+    }
+    
+    /**
+     * Apply ranking boosts to the base cosine similarity score.
+     * 
+     * @param baseScore The original cosine similarity score
+     * @param product The product being scored
+     * @param queryTokens Tokenized search query (lowercase, non-alphanumeric split)
+     * @param category Optional category filter parameter
+     * @return Boosted score, capped at 1.0
+     */
+    private double applyRankingBoosts(double baseScore, Product product, List<String> queryTokens, String category) {
+        double boostedScore = baseScore;
+        
+        // 1. Title keyword boost: +10% if any query token appears in product title
+        if (hasQueryTokenInTitle(product.getTitle(), queryTokens)) {
+            boostedScore *= 1.10;
+        }
+        
+        // 2. Category preference: +5% if category param matches product category
+        if (category != null && !category.trim().isEmpty() && 
+            product.getCategory().toLowerCase().equals(category.toLowerCase())) {
+            boostedScore *= 1.05;
+        }
+        
+        // Cap final score at 1.0
+        return Math.min(boostedScore, 1.0);
+    }
+    
+    /**
+     * Check if any query token appears in the product title (case-insensitive).
+     * 
+     * @param productTitle The product title to search in
+     * @param queryTokens List of query tokens to look for
+     * @return true if any token is found in the title
+     */
+    private boolean hasQueryTokenInTitle(String productTitle, List<String> queryTokens) {
+        if (productTitle == null || queryTokens.isEmpty()) {
+            return false;
+        }
+        
+        String titleLower = productTitle.toLowerCase();
+        return queryTokens.stream().anyMatch(titleLower::contains);
     }
     
     // Inner class to hold search results with similarity scores
