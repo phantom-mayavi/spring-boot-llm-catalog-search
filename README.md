@@ -78,6 +78,77 @@ The application will start on `http://localhost:8080` by default.
 
 ## API Documentation
 
+### GET /search
+
+Enhanced semantic search endpoint with filtering, pagination and sorting capabilities.
+
+**Parameters:**
+- `q` (required): Search query string (cannot be empty)
+- `category` (optional): Filter by product category  
+- `priceMin` (optional): Minimum price filter (decimal, must be non-negative)
+- `priceMax` (optional): Maximum price filter (decimal, must be non-negative, must be >= priceMin)
+- `page` (optional): Page number for pagination (default: 0, must be >= 0)
+- `size` (optional): Number of results per page (default: 10, range: 1-50)
+- `sort` (optional): Sort order - "score" (default) or "price"
+
+**Rate Limiting:** 30 requests per minute per IP address.
+
+**Success Response (200):**
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "name": "Product Name",
+      "description": "Product description",
+      "price": 99.99,
+      "category": "Electronics",
+      "score": 0.95
+    }
+  ],
+  "total": 150,
+  "page": 0,
+  "size": 10,
+  "hasNext": true
+}
+```
+
+**Error Responses:**
+
+**Validation Error (400):**
+```json
+{
+  "error": "validation_error",
+  "details": "Query parameter 'q' is required and cannot be empty",
+  "status": 400
+}
+```
+
+**Rate Limit Exceeded (429):**
+```json
+{
+  "error": "rate_limited", 
+  "details": "Rate limit exceeded. Maximum 30 requests per minute allowed.",
+  "status": 429
+}
+```
+
+**Internal Server Error (500):**
+```json
+{
+  "error": "internal_error",
+  "details": "An unexpected error occurred", 
+  "status": 500
+}
+```
+
+**Common Validation Errors:**
+- Empty query: `"Query parameter 'q' is required and cannot be empty"`
+- Invalid page: `"Page parameter must be non-negative"`
+- Invalid size: `"Size parameter must be between 1 and 50"`
+- Invalid price range: `"PriceMin cannot be greater than priceMax"`
+- Invalid sort: `"Sort parameter must be 'score' or 'price'"`
+
 ### Get All Products
 
 Retrieve products from the catalog with optional limit parameter.
@@ -139,54 +210,6 @@ curl -X GET "http://localhost:8080/products/embeddings?limit=3"
   "limit": 3,
   "returned": 1,
   "total": 50
-}
-```
-
-### Semantic Search
-
-Perform intelligent search using natural language queries.
-
-**Endpoint:** `GET /products/search`
-
-**Parameters:**
-- `q` (required): Search query string
-- `limit` (optional): Number of results to return (default: 10, max: 50)
-
-**Example Request:**
-```bash
-curl -X GET "http://localhost:8080/products/search?q=wireless%20audio%20devices&limit=5"
-```
-
-**Example Response:**
-```json
-{
-  "query": "wireless audio devices",
-  "results": [
-    {
-      "product": {
-        "id": "550e8400-e29b-41d4-a716-446655440000",
-        "name": "Wireless Bluetooth Headphones",
-        "description": "High-quality wireless headphones with noise cancellation",
-        "price": 99.99,
-        "category": "Electronics",
-        "embeddings": [0.1234, -0.5678, 0.9012, ...]
-      },
-      "similarity": 0.8567
-    },
-    {
-      "product": {
-        "id": "550e8400-e29b-41d4-a716-446655440001",
-        "name": "Bluetooth Speaker",
-        "description": "Portable wireless speaker with excellent sound quality",
-        "price": 49.99,
-        "category": "Electronics",
-        "embeddings": [0.3456, -0.7890, 0.2345, ...]
-      },
-      "similarity": 0.7234
-    }
-  ],
-  "limit": 5,
-  "returned": 2
 }
 ```
 
