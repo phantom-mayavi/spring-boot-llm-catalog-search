@@ -213,6 +213,22 @@ curl -X GET "http://localhost:8080/products/embeddings?limit=3"
 }
 ```
 
+## Migration Notes
+
+**Important:** The legacy `/products/search` endpoint has been removed in favor of the enhanced `/search` endpoint. If you were using the old endpoint, please migrate to `/search` which offers:
+
+- Enhanced filtering capabilities (category, price range)
+- Pagination support
+- Sorting options
+- Input validation and better error handling
+- Rate limiting for production use
+
+**Migration Example:**
+```bash
+# Old (removed): GET /products/search?q=laptop&limit=10
+# New (recommended): GET /search?q=laptop&size=10&page=0
+```
+
 ## Embeddings and AI Integration
 
 This application uses Google's Gemini API to generate vector embeddings for product descriptions. The embeddings enable semantic search capabilities that go beyond simple keyword matching.
