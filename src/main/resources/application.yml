@@ -7,7 +7,7 @@ spring:
 
 logging:
   level:
-    com.ai.catalogsearch: INFO
+    com.ai.catalogsearch: debug
     org.springframework: INFO
 
 # Gemini Embeddings API Configuration
@@ -17,3 +17,16 @@ gemini:
     api-key: ${GEMINI_API_KEY:your-api-key-here}
     model: text-embedding-004
     batch-size: 100
+
+# LLM HTTP configuration
+llm:
+  http:
+    # Connection timeout in milliseconds (default: 5000ms)
+    connect-timeout-ms: 5000
+    # Read timeout in milliseconds (default: 30000ms)  
+    read-timeout-ms: 30000
+    # Enable retry for transient 5xx errors (default: true)
+    retry-enabled: true
+  cache:
+    # LRU cache size for embeddings (default: 500)
+    size: 500
