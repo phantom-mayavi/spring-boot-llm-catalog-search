@@ -331,6 +331,76 @@ gemini:
     batch-size: 100
 ```
 
+## Demo
+
+### Web User Interface
+
+This project includes a minimal React-based web UI that provides a user-friendly interface for semantic catalog search.
+
+![Semantic Catalog Search UI](docs/demo-screenshot.png)
+
+#### Features
+
+- **Search Interface**: Clean, intuitive search form with all API parameters
+- **Real-time Results**: Live search results with semantic similarity scores
+- **Filtering & Pagination**: Category and price filtering with pagination support
+- **Responsive Design**: Works on desktop and mobile devices
+- **Beautiful Styling**: Modern gradient design with glassmorphism effects
+
+#### Running the UI
+
+**Option 1: Development Mode (Recommended for testing)**
+
+1. Start the Spring Boot backend:
+   ```bash
+   export GEMINI_API_KEY=your_gemini_api_key_here
+   ./gradlew bootRun
+   ```
+
+2. In a new terminal, start the React development server:
+   ```bash
+   cd ui
+   npm start
+   ```
+
+3. Open your browser to `http://localhost:3000`
+
+**Option 2: Production Build**
+
+1. Build the React app:
+   ```bash
+   cd ui
+   npm run build
+   ```
+
+2. Serve the static build:
+   ```bash
+   npm install -g serve
+   serve -s build
+   ```
+
+3. The UI will be available at `http://localhost:3000`
+
+#### Usage
+
+1. **Search**: Enter any product query (e.g., "comfortable running shoes", "wireless headphones")
+2. **Filter**: Optionally filter by category and price range
+3. **Sort**: Choose to sort by relevance score or price
+4. **Paginate**: Browse through results using the pagination controls
+
+The UI demonstrates the power of semantic search - try searching for:
+- "device for music" (finds headphones and speakers)
+- "something to wear while exercising" (finds athletic wear)
+- "portable computing" (finds laptops and tablets)
+
+#### Technical Details
+
+- **Framework**: React 19.1.1 with hooks
+- **Styling**: Custom CSS with responsive design
+- **API Integration**: Fetch API with error handling
+- **CORS**: Properly configured for localhost development
+- **Build**: Optimized production build (~63KB gzipped)
+
 ## Contributing
 
 1. Fork the repository
