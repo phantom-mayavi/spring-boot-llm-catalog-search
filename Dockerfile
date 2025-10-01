@@ -16,12 +16,14 @@ COPY src src
 RUN ./gradlew build -x test --no-daemon
 
 # Runtime stage
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
-# Create non-root user for security
-RUN groupadd -r spring && useradd -r -g spring spring
+# Install curl for health check and create non-root user for security
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* && \
+    groupadd -r spring && \
+    useradd -r -g spring spring
 
 # Copy the built jar from builder stage
 COPY --from=builder /app/build/libs/*.jar app.jar
@@ -34,10 +36,8 @@ USER spring
 
 # Expose port
 EXPOSE 8080
-
-# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
+  CMD curl -f http://localhost:8080/api/products || exit 1
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
