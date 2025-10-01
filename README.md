@@ -26,17 +26,20 @@ A Spring Boot application that provides intelligent product catalog search capab
 - Java 17 or higher
 - Gradle (or use the included Gradle wrapper)
 - Google Gemini API key
+- Docker (optional, for containerized deployment)
 
 ## Setup Instructions
 
-### 1. Clone the Repository
+### Option 1: Local Development
+
+#### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/phantom-mayavi/spring-boot-llm-catalog-search.git
 cd spring-boot-llm-catalog-search
 ```
 
-### 2. Configure Gemini API Key
+#### 2. Configure Gemini API Key
 
 Set your Google Gemini API key as an environment variable:
 
@@ -46,7 +49,7 @@ export GEMINI_API_KEY=your_gemini_api_key_here
 
 Alternatively, you can set it in your IDE's run configuration or add it to your system environment variables.
 
-### 3. Build the Project
+#### 3. Build the Project
 
 Using Gradle wrapper (recommended):
 
@@ -60,7 +63,7 @@ Or using installed Gradle:
 gradle build
 ```
 
-### 4. Run the Application
+#### 4. Run the Application
 
 Using Gradle wrapper:
 
@@ -72,6 +75,41 @@ Or using installed Gradle:
 
 ```bash
 gradle bootRun
+```
+
+### Option 2: Docker
+
+#### 1. Clone the Repository
+
+```bash
+git clone https://github.com/phantom-mayavi/spring-boot-llm-catalog-search.git
+cd spring-boot-llm-catalog-search
+```
+
+#### 2. Build the Docker Image
+
+```bash
+docker build -t catalog-search .
+```
+
+#### 3. Run the Container
+
+```bash
+docker run -e GEMINI_API_KEY=your_gemini_api_key_here -p 8080:8080 catalog-search
+```
+
+### Option 3: Docker Compose
+
+#### 1. Set Environment Variable
+
+```bash
+export GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+#### 2. Run with Docker Compose
+
+```bash
+docker compose up
 ```
 
 The application will start on `http://localhost:8080` by default.
