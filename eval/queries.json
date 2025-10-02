@@ -1,0 +1,34 @@
+[
+  {
+    "query": "wireless headphones",
+    "expectedSkus": ["ELE001"]
+  },
+  {
+    "query": "gaming setup",
+    "expectedSkus": ["ELE003", "ELE004"]
+  },
+  {
+    "query": "smartphone with camera",
+    "expectedSkus": ["ELE005"]
+  },
+  {
+    "query": "kitchen essentials",
+    "expectedSkus": ["HOM001", "HOM004"]
+  },
+  {
+    "query": "professional clothing",
+    "expectedSkus": ["APP005"]
+  },
+  {
+    "query": "home cleaning",
+    "expectedSkus": ["HOM003"]
+  },
+  {
+    "query": "programming books",
+    "expectedSkus": ["BOO001"]
+  },
+  {
+    "query": "skincare routine",
+    "expectedSkus": ["BEA001", "BEA008"]
+  }
+]

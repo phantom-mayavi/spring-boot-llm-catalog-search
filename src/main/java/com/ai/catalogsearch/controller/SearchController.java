@@ -1,9 +1,11 @@
 package com.ai.catalogsearch.controller;
 
+import com.ai.catalogsearch.dto.EvaluationResponse;
 import com.ai.catalogsearch.dto.SearchResponse;
 import com.ai.catalogsearch.exception.RateLimitException;
 import com.ai.catalogsearch.exception.ValidationException;
 import com.ai.catalogsearch.ratelimit.RateLimiter;
+import com.ai.catalogsearch.service.EvaluationService;
 import com.ai.catalogsearch.service.SearchService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import java.math.BigDecimal;
 public class SearchController {
 
     private final SearchService searchService;
+    private final EvaluationService evaluationService;
     private final RateLimiter rateLimiter;
 
     @GetMapping("/search")
@@ -97,5 +100,31 @@ public class SearchController {
         }
         
         return request.getRemoteAddr();
+    }
+
+    @PostMapping("/eval/run")
+    public ResponseEntity<EvaluationResponse> runEvaluation(
+            @RequestParam(defaultValue = "3") int k,
+            HttpServletRequest request) {
+        
+        // Rate limiting (same as search endpoint)
+        String clientId = getClientId(request);
+        if (!rateLimiter.isAllowed(clientId)) {
+            throw new RateLimitException("Rate limit exceeded. Maximum 30 requests per minute allowed.");
+        }
+        
+        log.info("Evaluation request - k: {}", k);
+        
+        // Validation
+        if (k < 1 || k > 20) {
+            throw new ValidationException("Parameter 'k' must be between 1 and 20");
+        }
+        
+        EvaluationResponse results = evaluationService.runEvaluation(k);
+        
+        log.info("Evaluation completed - average precision@{}: {:.4f}", 
+                k, results.getAveragePrecision());
+        
+        return ResponseEntity.ok(results);
     }
 }
