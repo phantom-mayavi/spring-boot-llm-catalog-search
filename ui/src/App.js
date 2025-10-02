@@ -95,11 +95,12 @@ function App() {
       </header>
 
       <main className="search-container">
-        <form onSubmit={handleSubmit} className="search-form">
-          <div className="search-row">
-            <div className="search-input-group">
-              <label htmlFor="q">Search Query *</label>
+        <form onSubmit={handleSubmit} className="form-card">
+          <div className="form-grid">
+            <div className="field">
+              <label>Search Query *</label>
               <input
+                className="control"
                 type="text"
                 id="q"
                 name="q"
@@ -110,9 +111,10 @@ function App() {
               />
             </div>
             
-            <div className="search-input-group">
-              <label htmlFor="category">Category</label>
+            <div className="field">
+              <label>Category</label>
               <input
+                className="control"
                 type="text"
                 id="category"
                 name="category"
@@ -121,12 +123,11 @@ function App() {
                 placeholder="e.g., Electronics, Clothing"
               />
             </div>
-          </div>
-
-          <div className="search-row">
-            <div className="search-input-group">
-              <label htmlFor="priceMin">Min Price ($)</label>
+            
+            <div className="field">
+              <label>Min Price ($)</label>
               <input
+                className="control"
                 type="number"
                 id="priceMin"
                 name="priceMin"
@@ -138,9 +139,10 @@ function App() {
               />
             </div>
             
-            <div className="search-input-group">
-              <label htmlFor="priceMax">Max Price ($)</label>
+            <div className="field">
+              <label>Max Price ($)</label>
               <input
+                className="control"
                 type="number"
                 id="priceMax"
                 name="priceMax"
@@ -152,9 +154,10 @@ function App() {
               />
             </div>
             
-            <div className="search-input-group">
-              <label htmlFor="size">Results per page</label>
+            <div className="field">
+              <label>Results per page</label>
               <select
+                className="control"
                 id="size"
                 name="size"
                 value={searchData.size}
@@ -167,9 +170,10 @@ function App() {
               </select>
             </div>
             
-            <div className="search-input-group">
-              <label htmlFor="sort">Sort by</label>
+            <div className="field">
+              <label>Sort by</label>
               <select
+                className="control"
                 id="sort"
                 name="sort"
                 value={searchData.sort}
@@ -180,10 +184,12 @@ function App() {
               </select>
             </div>
           </div>
-
-          <button type="submit" disabled={loading} className="search-button">
-            {loading ? 'Searching...' : 'Search'}
-          </button>
+          
+          <div className="form-actions">
+            <button type="submit" disabled={loading} className="btn-search">
+              {loading ? 'Searching...' : 'Search'}
+            </button>
+          </div>
         </form>
 
         {error && (
